@@ -51,6 +51,11 @@ var gA int = 100
 //常量(只读属性)
 const length int = 10
 
+const (
+    a = 10
+    b = 20
+)
+
 //const 来定义枚举类型
 const (
 	//可以在const() 添加一个关键字 iota， 每行的iota都会累加1, 第一行的iota的默认值是0
@@ -68,4 +73,112 @@ const (
 	i, k					   // iota = 4, i = iota * 2, k = iota * 3 , i = 8, k = 12
 )
 ```
-## 0x03. 
+## 0x03. 函数
+定义函数关键字func，函数定义一般语法为：func 函数名（形参名称 形参类型）返回值名称，返回值类型。Go支持函数多返回值，第一种是返回多个匿名返回值，第二种是返回带有形参名称的返回值。如果返回值类型相同，则可以简写。
+```Golang
+func func1(a string, b int) int {
+	fmt.Println(a)
+	fmt.Println(b)
+	c := 100
+	return c
+}
+//返回多个匿名返回值
+func func2(a int, b int) (int, int) {
+	fmt.Println(a)
+	fmt.Println(b)
+	return b, a + b
+}
+// 返回多个有形参名称的返回值
+func func3(a int, b int) (result1 int, result2 int) {
+	result1 = a + b
+	result2 = a - b
+	return result1,result2
+}
+func func4(a int, b int) (result1 int, result2 int) {
+	fmt.Println(a)
+	fmt.Println(b)
+	//给有名称的返回值变量赋值
+	result2 = 2000
+	result1 = 1000
+	return
+}
+//若返回值类型相同，则可以进行简写
+func func5(a int, b int) (result1, result2 int) {
+	fmt.Println(a)
+	fmt.Println(b)
+	//给有名称的返回值变量赋值
+	result2 = 3000
+	result1 = 5000
+	return
+}
+```
+## 0x04. init()函数
+init为函数初始化，在每次import包后自动执行的初始化函数，在main函数前做准备工作，具体执行过程如下图所示。
+![](./image/init.png)
+
+注意import的包一定要在$GOPATH/src目录下，其中测试文件1和测试文件2的代码和路径如下：  
+```Golang
+//$GOPATH/src/testlib/lib1/lib1.go
+package lib1
+import "fmt"
+func Lib1test() {
+	fmt.Println("lib1test is running!")
+}
+func init() {
+	fmt.Println("lib1 init")
+}
+//$GOPATH/src/testlib/lib2/lib2.go
+package lib2
+import "fmt"
+func Lib2test() {
+	fmt.Println("lib1test running!")
+}
+func init() {
+	fmt.Println("lib2 init")
+}
+```
+测试函数：  
+```Golang
+package main
+
+import (
+	"testlib/lib1"
+	"testlib/lib2"
+)
+
+func main() {
+	lib1.Lib1test()
+	lib2.Lib2test()
+}
+```
+返回结果：
+```bash
+lib1 init
+lib2 init
+lib1test is running!
+lib2test is running!
+```
+## 0x05. import导包
+在Go中，通过import导入package有三种方法：  
+1. 匿名导入：无法使用当前包的方法，但是会执行内部的init方法；
+2. 给当前包起一个别名，利用别名来调用方法；
+3. 导入全部方法，直接调用API即可。  
+
+下面代码分别展示三种import方法：
+```Golang
+//匿名导入
+//给fmt包起一个别名，匿名，无法使用当前包方法，但会调用内部init()
+import _ "fmt"
+
+//别名导入
+//给fmt包起一个别名，aa，aa可直接调用fmt方法，aa.Println()
+import aa "fmt"
+
+//全部导入
+//将fmt的全部方法导入当前包的作用中，fmt的全部方法可以直接调用API而不需要fmt.API调用
+import . "fmt"
+```
+## 0x06. 指针
+
+## 0x07. defer
+
