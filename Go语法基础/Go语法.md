@@ -179,6 +179,62 @@ import aa "fmt"
 import . "fmt"
 ```
 ## 0x06. 指针
+Go中的指针与C++类似，指针存一个变量的地址，如果对变量本身进行修改，则在函数中进行指针传递。
+![](./image/pointer1.png)
+![](./image/pointer2.png)
+```Golang
+func swap(pa *int, pb *int) {
+	var temp int
+	temp = *pa //temp = main::a
+	*pa = *pb  // main::a = main::b
+	*pb = temp // main::b = temp
+}
+func main() {
+	var a int = 10
+	var b int = 20
 
+	swap(&a, &b)
+
+	fmt.Println("a = ", a, " b = ", b)
+	//a =  20  b =  10
+
+	fmt.Println(&a) //0xc000096068
+}
+```
 ## 0x07. defer
-
+Go中的defer用于在退出当前函数前执行某些特定逻辑，比如close或unlock等操作。涉及到两个关键点，首先是defer的执行顺序，defer调用时利用栈来存储，所以是后进先出，执行顺序为func3->func2->func1；
+![](./image/defer.png)
+```Golang
+func main() {
+	//写入defer关键字
+	defer fmt.Println("main end1")
+	defer fmt.Println("main end2")
+	
+	fmt.Println("main::hello go 1")
+	fmt.Println("main::hello go 2")
+}
+//main::hello go 1
+//main::hello go 2
+//main end2
+//main end1
+```
+第二个关键点是defer和return的执行顺序：return语句先执行，defer语句后执行。
+```Golang
+func deferTest() int {
+	fmt.Println("defer called...")
+	return 0
+}
+func returnTest() int {
+	fmt.Println("return called...")
+	return 0
+}
+func returnandDeferTest() int {
+	defer deferTest()
+	return returnTest()
+}
+func main() {
+	returnandDeferTest()
+}
+//return called...
+//defer called...
+```
