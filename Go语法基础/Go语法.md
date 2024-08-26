@@ -238,3 +238,161 @@ func main() {
 //return called...
 //defer called...
 ```
+## 0x08. 数组
+数组是切片slice和映射map的基础数据结构。数组是一个长度固定的数据类型，用于存储一段具有相同类型元素的连续块，一旦声明，数组中存储的数据类型和数组长度就都不能再改变。在数组初始化时，如果没有指定数组元素，则默认为0。数组传递在函数中为值拷贝，无法在函数中对数组值进行修改。
+```Golang
+//定义数组的方式，没有初始化则元素默认为0
+var myArray1 [10]int
+myArray2 := [10]int{1, 2, 3, 4}
+//遍历数组的方式
+for i := 0; i < len(myArray1); i++ {
+		fmt.Println(myArray1[i])
+	}
+for index, value := range myArray2 {
+		fmt.Println("index = ", index, ", value = ", value)
+	}
+func printArray1(myArray [4]int) {
+	//值拷贝
+	for index, value := range myArray {
+		fmt.Println("index = ", index, ", value = ", value)
+	}
+
+	myArray[0] = 111 //无法修改
+}
+```
+## 0x09. 切片（动态数组）
+切片和数组在声明时的区别在于，切片在[ ]运算符中为空，如果在[ ]运算符中指定了一个值，那么创建的就是一个数组而不是切片。只有不指定值时，才会创建切片。  
+切片和数组的第一个区别是，在函数中，切片是引用传递，数组是值传递：
+```Golang
+func printArray(myArray []int) {
+	//引用传递
+	// _ 表示匿名的变量
+	for _, value := range myArray {
+		fmt.Println("value = ", value)
+	}
+	myArray[0] = 100
+}
+func main() {
+	myArray := []int{1, 2, 3, 4} // 动态数组，切片 slice
+	fmt.Printf("myArray type is %T\n", myArray)
+
+	printArray(myArray)
+
+	fmt.Println(" ==== ")
+	for _, value := range myArray {
+		fmt.Println("value = ", value)
+	}
+}
+//改变value为100
+```
+切片的声明方式与初始化：
+```Golang
+//声明slice1是一个切片，并且初始化，默认值是1，2，3  长度len是3
+slice1 := []int{1, 2, 3}
+
+//声明slice2是一个切片，但是并没有给slice分配空间
+slice2 := []int
+
+//为slice2开辟3个空间，默认值是0
+slice2 = make([]int,3)
+
+//声明slice3是一个切片，同时给slice3分配3个空间，初始化值是0
+var slice3 []int = make([]int, 3)
+
+//声明slice4是一个切片，同时给slice4分配3个空间，初始化值是0, 通过:=推导出slice是一个切片
+slice4 := make([]int,3)
+
+//判断一个silce是否为0
+	if slice1 == nil {
+		fmt.Println("slice1 是一个空切片")
+	} else {
+		fmt.Println("slice1 是有空间的")
+	}
+```
+切片容量的增加，slice分为len长度和cap容量，当append追加的元素数量超过了cap容量时，cap会翻倍扩充，这是切片的扩容机制。切⽚的⻓度和容量不同，⻓度表示左指针至右指针之间的距离，容量表示左指针⾄底层数组末尾的距离。
+![](./image/slice.png)
+```Golang
+var numbers = make([]int, 3, 5)
+numbers = append(numbers, 1)
+//向numbers切片追加一个元素2, numbers len = 5， [0,0,0,1,2], cap = 5
+numbers = append(numbers, 2)
+//向一个容量cap已经满的slice 追加元素
+numbers = append(numbers, 3)
+//此时len = 6, cap = 10, slice = [0 0 0 1 2 3]
+
+
+//切片操作
+s := []int{1, 2, 3}  //len = 3, cap = 3, [1,2,3]
+//切片的截取
+s1 := s[0:2]  //[0, 2)
+fmt.Println(s1)  // [1, 2]
+//此处修改s1的值，则会修改底层s中的值
+s1[0] = 100 
+fmt.Println(s) // [100,2,3]
+fmt.Println(s1)  //[100,2]
+//copy 可以将底层数组的slice一起进行拷贝
+s2 := make([]int, 3) //s2 = [0,0,0]
+//将s中的值 依次拷贝到s2中
+copy(s2, s)
+fmt.Println(s2) // s2 = [100 2 3]
+```
+## 0x10. 映射
+映射Map，就像python中的字典结构一样，是key-value格式保存的，有三种声明方式。
+```Golang
+//方法1：声明myMap1是一种map类型，key是string， value是string
+var myMap1 map[string]string
+if myMap1 == nil {
+	fmt.Println("myMap1 是一个空map")
+}
+//在使用map前， 需要先用make给map分配数据空间
+myMap1 = make(map[string]string, 10)
+myMap1["one"] = "java"
+myMap1["two"] = "c++"
+myMap1["three"] = "python"
+fmt.Println(myMap1)
+
+//方法2：
+myMap2 := make(map[int]string)
+myMap2[1] = "java"
+myMap2[2] = "c++"
+myMap2[3] = "python"
+
+//方法3：
+myMap3 := map[string]string{
+		"one":   "php",
+		"two":   "c++",
+		"three": "python",
+	}
+```
+对map可以正常进行增删改查等操作，map是引用传递，在函数中修改内容会影响源数据。
+```Golang
+func printMap(cityMap map[string]string) {
+	//cityMap 是一个引用传递
+	for key, value := range cityMap {
+		fmt.Println("key = ", key)
+		fmt.Println("value = ", value)
+	}
+}
+
+func ChangeValue(cityMap map[string]string) {
+	cityMap["England"] = "London"
+}
+func main() {
+	cityMap := make(map[string]string)
+
+	//添加
+	cityMap["China"] = "Beijing"
+	cityMap["Japan"] = "Tokyo"
+	cityMap["USA"] = "NewYork"
+
+	//删除
+	delete(cityMap, "China")
+
+	//修改
+	cityMap["USA"] = "DC"
+	ChangeValue(cityMap)
+
+	//遍历
+	printMap(cityMap)
+}
+```
